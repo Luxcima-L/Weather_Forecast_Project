@@ -6,15 +6,35 @@ const apiUrlForecast = "https://api.openweathermap.org/data/2.5/forecast?units=m
 const searchBox = document.querySelector(".search input");
 const searchBtn = document.querySelector(".search button");
 
+function handleApiError(response) {
+    // specific error code handling
+    // 404 is returned for unknown city name input
+    if (response.status == 404) {
+        showToast('City not found. Enter valid city', 'error');
+        return;
+    }
+
+    // Generic error toast for all other errors
+    if (Math.floor(Number(response.status / 100)) === 4) {
+        showToast('Temporary Error! Try again', 'warning');
+    } else if (Math.floor(Number(response.status / 100)) === 5) {
+        showToast('Server Error', 'error');
+    }
+}
+
 async function checkWeather(city) {
     console.log('city', city.length);
     if (city.length === 0) {
         showToast('City name cannot be empty', 'warning');
-        return;
+        return false;
     }
     let data = null;
     try {
         const response = await fetch(apiUrlCurrent + city + `&appid=${apiKey}`);
+        if (!response.ok) {
+            handleApiError(response);
+            return false;
+        }
         data = await response.json();
 
         const today = new Date();
@@ -34,60 +54,70 @@ async function checkWeather(city) {
         document.querySelector("#weather_icon").src = "https://openweathermap.org/img/wn/" + weather_icon + "@2x.png";
         console.log(data);
 
-        getForecast(city);
 
     } catch (e) {
         console.log(e);
-        showToast('Api Error', 'error');
+        showToast('Api Processing Error', 'error');
+        return false;
     }
-
+    return true;
 }
 
 // Function to show 5 day forecast
 async function getForecast(city) {
-    const response = await fetch(apiUrlForecast + city + `&appid=${apiKey}`);
-    const data = await response.json();
+    if (city.length === 0) {
+        showToast('City name cannot be empty', 'warning');
+        return;
+    }
 
-    const forecastContainer = document.querySelector("#forecast");
-    forecastContainer.innerHTML = "";
+    try {
+        const response = await fetch(apiUrlForecast + city + `&appid=${apiKey}`);
+        if (!response.ok) {
+            handleApiError(response);
+            return;
+        }
+        const data = await response.json();
 
-    // Group forecast by date
-    const grouped = {};
-    data.list.forEach(item => {
-        const date = item.dt_txt.split(" ")[0];
-        if (!grouped[date]) grouped[date] = [];
-        grouped[date].push(item);
-    });
+        const forecastContainer = document.querySelector("#forecast");
+        forecastContainer.innerHTML = "";
 
-    // Get one forecast entry per day (12:00:00)
-    // const dailyForecast = data.list.filter(item => item.dt_txt.includes("12:00:00"));
-
-    // Extract one entry per day (closest to 12:00)
-    const daily = Object.keys(grouped).map(date => {
-        const items = grouped[date];
-        return items.reduce((prev, curr) => {
-            const prevDiff = Math.abs(new Date(prev.dt_txt).getHours() - 12);
-            const currDiff = Math.abs(new Date(curr.dt_txt).getHours() - 12);
-            return currDiff < prevDiff ? curr : prev;
+        // Group forecast by date
+        const grouped = {};
+        data.list.forEach(item => {
+            const date = item.dt_txt.split(" ")[0];
+            if (!grouped[date]) grouped[date] = [];
+            grouped[date].push(item);
         });
-    });
 
-    // Remove today's entry and show next 5
-    daily.shift();
-    const nextFive = daily.slice(0, 5);
+        // Get one forecast entry per day (12:00:00)
+        // const dailyForecast = data.list.filter(item => item.dt_txt.includes("12:00:00"));
 
-    nextFive.forEach(day => {
-        const date = new Date(day.dt_txt);
-        const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
-        const icon = day.weather[0].icon;
-        const temp = Math.round(day.main.temp);
-        const desc = day.weather[0].description;
-        const humidity = day.main.humidity;
-        const wind = day.wind.speed;
+        // Extract one entry per day (closest to 12:00)
+        const daily = Object.keys(grouped).map(date => {
+            const items = grouped[date];
+            return items.reduce((prev, curr) => {
+                const prevDiff = Math.abs(new Date(prev.dt_txt).getHours() - 12);
+                const currDiff = Math.abs(new Date(curr.dt_txt).getHours() - 12);
+                return currDiff < prevDiff ? curr : prev;
+            });
+        });
 
-        const formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+        // Remove today's entry and show next 5
+        daily.shift();
+        const nextFive = daily.slice(0, 5);
 
-        const card = `
+        nextFive.forEach(day => {
+            const date = new Date(day.dt_txt);
+            const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
+            const icon = day.weather[0].icon;
+            const temp = Math.round(day.main.temp);
+            const desc = day.weather[0].description;
+            const humidity = day.main.humidity;
+            const wind = day.wind.speed;
+
+            const formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+
+            const card = `
       <div class="bg-gradient-to-b from-blue-200 to-blue-400 text-white rounded-2xl p-4 shadow-lg transform transition hover:scale-105 backdrop-blur-md border border-white/20">
         <h3 class="text-lg font-semibold mb-1">${dayName}</h3>
         <p class="text-sm mb-2 opacity-90">${formattedDate}</p>
@@ -100,59 +130,67 @@ async function getForecast(city) {
         </div>
       </div>
     `;
-        forecastContainer.innerHTML += card;
-    });
+            forecastContainer.innerHTML += card;
+        });
+    } catch (e) {
+        console.log(e);
+        showToast('Api error', 'error');
+    }
 }
-// const baseClasses = "fixed top-5 right-5 z-50 px-5 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2 transition-all duration-300";
 
 function showToast(message, type = "info") {
-  const toast = document.getElementById("toast");
-  const toastIcon = document.getElementById("toast-icon");
-  const toastMessage = document.getElementById("toast-message");
+    const toast = document.getElementById("toast");
+    const toastIcon = document.getElementById("toast-icon");
+    const toastMessage = document.getElementById("toast-message");
 
-  // Set message text
-  toastMessage.textContent = message;
+    // Set message text
+    toastMessage.textContent = message;
 
-  // Set color and icon based on type
-  switch (type) {
-    case "success":
-    //   toast.className = baseClasses + " bg-green-600";
-      toastIcon.textContent = "✅";
-      break;
-    case "error":
-    //   toast.className = baseClasses + " bg-red-600 text-white";
-      toastIcon.textContent = "❌";
-      break;
-    case "warning":
-    //   toast.className = baseClasses + " bg-yellow-500 text-black";
-      toastIcon.textContent = "⚠️";
-      break;
-    default:
-    //   toast.className = baseClasses + " bg-blue-600";
-      toastIcon.textContent = "ℹ️";
-  }
+    // Set icon based on type
+    switch (type) {
+        case "success":
+            toastIcon.textContent = "✅";
+            break;
+        case "error":
+            toastIcon.textContent = "❌";
+            break;
+        case "warning":
+            toastIcon.textContent = "⚠️";
+            break;
+        default:
+            toastIcon.textContent = "ℹ️";
+    }
 
-  // Show toast
-  toast.classList.remove("hidden");
-  toast.classList.add("opacity-100", "translate-y-0");
+    // Show toast
+    toast.classList.remove("hidden");
+    toast.classList.add("opacity-100", "translate-y-0");
 
-  // Hide after 3 seconds
-  setTimeout(() => {
-    toast.classList.add("opacity-0", "-translate-y-3");
-    setTimeout(() => toast.classList.add("hidden"), 300);
-  }, 3000);
+    // Hide after 3 seconds
+    setTimeout(() => {
+        toast.classList.add("opacity-0", "-translate-y-3");
+        setTimeout(() => toast.classList.add("hidden"), 300);
+    }, 3000);
 }
 
+
+// setting default location when page loads 
+// done to make it prettier
 window.addEventListener("load", function () {
-    // setting default location when page loads 
-    // done to make it prettier
-    checkWeather("Bengaluru");
+    fetchData("Bengaluru");
 });
 
 searchBtn.addEventListener("click", () => {
-    checkWeather(searchBox.value);
+    fetchData(searchBox.value);
 });
 
 searchBox.addEventListener("keypress", e => {
-    if (e.key === "Enter") checkWeather(searchBox.value);
+    if (e.key === "Enter") {
+        fetchData(searchBox.value);
+    };
 });
+
+function fetchData(city) {
+    if (checkWeather(city)) {
+        getForecast(city);
+    }
+}
