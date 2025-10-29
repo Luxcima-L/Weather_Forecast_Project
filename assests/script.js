@@ -4,10 +4,71 @@ const apiUrlForecast = "https://api.openweathermap.org/data/2.5/forecast?units=m
 
 
 const searchBox = document.querySelector(".search input");
-const searchBtn = document.querySelector(".search button");
+// const searchBtn = document.querySelector(".search button");
 const currentLocationBtn = document.querySelector("#geoBtn");
 const toggleBtn = document.getElementById("toggleBtn");
 const toggleCircle = document.getElementById("toggleCircle");
+
+const RECENT_KEY = "recentCities";
+const MAX_RECENT = 8;
+
+const searchInput = document.getElementById("cityInput");
+const searchBtn = document.getElementById("searchBtn");
+const recentMenu = document.getElementById("recentMenu");
+
+// Storage helpers 
+function getRecentCities() {
+    try {
+        return JSON.parse(localStorage.getItem(RECENT_KEY)) || [];
+    } catch {
+        return [];
+    }
+}
+
+function saveRecentCity(city) {
+    city = city.trim();
+    if (!city) return;
+    let arr = getRecentCities();
+    // de-dupe case-insensitive
+    arr = arr.filter(c => c.toLowerCase() !== city.toLowerCase());
+    arr.unshift(city);
+    if (arr.length > MAX_RECENT) arr = arr.slice(0, MAX_RECENT);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(arr));
+}
+
+//  Dropdown render 
+function renderRecentDropdown(filter = "") {
+    const menu = document.getElementById("recentMenu");
+    let cities = getRecentCities();
+
+    // Filter by input text 
+    const f = filter.trim().toLowerCase();
+    if (f) cities = cities.filter(c => c.toLowerCase().includes(f));
+
+    if (!cities.length) {
+        menu.classList.add("hidden");
+        menu.innerHTML = "";
+        return;
+    }
+
+    menu.innerHTML =
+        cities
+            .map(
+                c => `<button type="button" data-city="${c}"
+               class="w-full text-left px-3 py-2 hover:bg-slate-100">${c}</button>`
+            )
+            .join("") +
+        `<div class="border-t border-slate-200">
+       <button type="button" id="clearRecent"
+               class=" text-left px-3 py-2 text-sm text-slate-500 hover:text-slate-700">
+         Clear recent
+       </button>
+     </div>`;
+
+    menu.classList.remove("hidden");
+    // menu.classList.add("show");
+}
+
 
 function handleApiError(response) {
     // specific error code handling
@@ -192,7 +253,7 @@ function showToast(message, type = "info") {
     toast.classList.remove("hidden");
     toast.classList.add("opacity-100", "translate-y-0");
 
-    // Hide after 3 seconds
+    // Hide after 5 seconds
     setTimeout(() => {
         toast.classList.add("opacity-0", "-translate-y-3");
         setTimeout(() => toast.classList.add("hidden"), 300);
@@ -221,22 +282,70 @@ toggleBtn.addEventListener("click", () => {
         showToast("Switched to Fahrenheit (°F)", "info");
     } else {
         // Convert back to Celsius
-        document.querySelector("#temp").textContent = `${Math.round(currentTempC)}\u00B0C`;
+        document.querySelector("#temp").textContent = `${Math.round(currentTempC)}°C`;
         toggleCircle.style.transform = "translateX(0)";
         isCelsius = true;
         showToast("Switched to Celsius (°C)", "info");
     }
 });
 
-
-
-
 searchBtn.addEventListener("click", () => {
     const city = searchBox.value.trim();
     if (!city) return showToast("City name cannot be empty", "warning");
+    saveRecentCity(city);
+    // renderRecentDropdown();
     checkWeatherForCity(city);
     getForecastForCity(city);
+
 });
+
+// Show dropdown only when typing
+
+searchInput.addEventListener("input", () => {
+    const value = searchInput.value.trim();
+
+    // If user types something → show dropdown (filtered)
+    if (value.length > 0) {
+        renderRecentDropdown(value);
+    }
+    // If input is empty → hide dropdown
+    else {
+        recentMenu.classList.add("hidden");
+    }
+});
+
+// Click on a recent item (event delegation)
+recentMenu.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-city]");
+    if (btn) {
+        const city = btn.dataset.city;
+        searchInput.value = city;
+        saveRecentCity(city);        // move to top
+        renderRecentDropdown();      // re-render
+        checkWeatherForCity(city);
+        getForecastForCity(city);
+        return;
+    }
+    if (e.target.id === "clearRecent") {
+        localStorage.removeItem(RECENT_KEY);
+        renderRecentDropdown();
+    }
+});
+
+// Hide dropdown when clicking outside or pressing Esc
+document.addEventListener("click", (e) => {
+    if (!e.target.closest("#searchWrap")) recentMenu.classList.add("hidden");
+});
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") recentMenu.classList.add("hidden");
+});
+
+// Initial state: no dropdown until we have history
+document.addEventListener("DOMContentLoaded", () => {
+    // do not render if empty (function will hide automatically)
+    renderRecentDropdown();
+});
+
 
 searchBox.addEventListener("keypress", e => {
     if (e.key === "Enter") {
@@ -244,13 +353,9 @@ searchBox.addEventListener("keypress", e => {
         if (!city) return showToast("City name cannot be empty", "warning");
         checkWeatherForCity(city);
         getForecastForCity(city);
+
     }
 });
-
-// currentLocationBtn.addEventListener("click", () => {
-//     console.log("Button Clicked");
-//     navigator.geolocation.getCurrentPosition(showLocation, showError);
-// });
 
 currentLocationBtn.addEventListener("click", () => {
     console.log(" Current Location Button Clicked");
@@ -298,3 +403,8 @@ function fetchData(city) {
     checkWeatherForCity(city)
     getForecastForCity(city);
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+    recentMenu.classList.add("hidden");
+    //   recentMenu.classList.add("show");
+});
