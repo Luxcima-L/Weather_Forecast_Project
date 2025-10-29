@@ -1,10 +1,11 @@
 const apiKey = "d4fc0b2073a3639a2eceb605c41fbeb3";
-const apiUrlCurrent = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
-const apiUrlForecast = "https://api.openweathermap.org/data/2.5/forecast?units=metric&q=";
+const apiUrlCurrent = "https://api.openweathermap.org/data/2.5/weather?units=metric&";
+const apiUrlForecast = "https://api.openweathermap.org/data/2.5/forecast?units=metric&";
 
 
 const searchBox = document.querySelector(".search input");
 const searchBtn = document.querySelector(".search button");
+const currentLocationBtn = document.querySelector("#geoBtn");
 
 function handleApiError(response) {
     // specific error code handling
@@ -22,20 +23,15 @@ function handleApiError(response) {
     }
 }
 
-async function checkWeather(city) {
-    console.log('city', city.length);
-    if (city.length === 0) {
-        showToast('City name cannot be empty', 'warning');
-        return false;
-    }
-    let data = null;
+// Function to check today weather 
+async function checkWeather(url) {
     try {
-        const response = await fetch(apiUrlCurrent + city + `&appid=${apiKey}`);
+        const response = await fetch(url);
         if (!response.ok) {
             handleApiError(response);
             return false;
         }
-        data = await response.json();
+        const data = await response.json();
 
         const today = new Date();
         const options = { weekday: "long", day: "numeric", month: "short", year: "numeric" };
@@ -64,14 +60,10 @@ async function checkWeather(city) {
 }
 
 // Function to show 5 day forecast
-async function getForecast(city) {
-    if (city.length === 0) {
-        showToast('City name cannot be empty', 'warning');
-        return;
-    }
+async function getForecast(url) {
 
     try {
-        const response = await fetch(apiUrlForecast + city + `&appid=${apiKey}`);
+        const response = await fetch(url);
         if (!response.ok) {
             handleApiError(response);
             return;
@@ -138,6 +130,34 @@ async function getForecast(city) {
     }
 }
 
+// city caller
+function checkWeatherForCity(city) {
+    if (!city || !city.trim()) {
+        showToast("City name cannot be empty", "warning");
+        return;
+    }
+    const url = `${apiUrlCurrent}q=${encodeURIComponent(city)}&appid=${apiKey}`;
+    checkWeather(url);
+}
+function getForecastForCity(city) {
+    if (!city || !city.trim()) {
+        showToast("City name cannot be empty", "warning");
+        return;
+    }
+    const url = `${apiUrlForecast}q=${encodeURIComponent(city)}&appid=${apiKey}`;
+    getForecast(url);
+}
+
+// coords caller
+function checkWeatherForCoords(lat, lon) {
+    const url = `${apiUrlCurrent}lat=${lat}&lon=${lon}&appid=${apiKey}`;
+    checkWeather(url);
+}
+function getForecastForCoords(lat, lon) {
+    const url = `${apiUrlForecast}lat=${lat}&lon=${lon}&appid=${apiKey}`;
+    getForecast(url);
+}
+
 function showToast(message, type = "info") {
     const toast = document.getElementById("toast");
     const toastIcon = document.getElementById("toast-icon");
@@ -169,28 +189,80 @@ function showToast(message, type = "info") {
     setTimeout(() => {
         toast.classList.add("opacity-0", "-translate-y-3");
         setTimeout(() => toast.classList.add("hidden"), 300);
-    }, 3000);
+    }, 5000);
 }
 
 
 // setting default location when page loads 
 // done to make it prettier
 window.addEventListener("load", function () {
-    fetchData("Bengaluru");
+    fetchData("Chennai");
 });
 
 searchBtn.addEventListener("click", () => {
-    fetchData(searchBox.value);
+const city = searchBox.value.trim();
+  if (!city) return showToast("City name cannot be empty", "warning");
+  checkWeatherForCity(city);         
+  getForecastForCity(city);          
 });
 
 searchBox.addEventListener("keypress", e => {
     if (e.key === "Enter") {
-        fetchData(searchBox.value);
-    };
+     const city = searchBox.value.trim();
+    if (!city) return showToast("City name cannot be empty", "warning");
+    checkWeatherForCity(city);
+    getForecastForCity(city);
+  }
+});
+
+// currentLocationBtn.addEventListener("click", () => {
+//     console.log("Button Clicked");
+//     navigator.geolocation.getCurrentPosition(showLocation, showError);
+// });
+
+currentLocationBtn.addEventListener("click", () => {
+    console.log(" Current Location Button Clicked");
+
+    if (!navigator.geolocation) {
+        showToast("Geolocation is not supported by this browser.", "error");
+        return;
+    }
+
+    // Show info toast while fetching
+    showToast("Fetching your current location...", "info");
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            console.log("Location received:", lat, lon);
+            showToast("Location detected successfully!", "success");
+
+            //  URL-based functions
+            checkWeatherForCoords(lat, lon);
+            getForecastForCoords(lat, lon);
+        },
+        (error) => {
+            console.error(" Location error:", error);
+
+            //  Use toast for all errors
+            const message =
+                error.code === 1
+                    ? "Permission denied. Please allow location access."
+                    : error.code === 2
+                        ? "Location information unavailable."
+                        : error.code === 3
+                            ? "Location request timed out. Try again."
+                            : "An unknown error occurred while fetching location.";
+
+            showToast(message, "error");
+        },
+        { timeout: 15000 }
+    );
 });
 
 function fetchData(city) {
-    if (checkWeather(city)) {
-        getForecast(city);
-    }
+    checkWeatherForCity(city) 
+    getForecastForCity(city);
 }
