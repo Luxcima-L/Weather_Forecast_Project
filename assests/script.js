@@ -6,6 +6,8 @@ const apiUrlForecast = "https://api.openweathermap.org/data/2.5/forecast?units=m
 const searchBox = document.querySelector(".search input");
 const searchBtn = document.querySelector(".search button");
 const currentLocationBtn = document.querySelector("#geoBtn");
+const toggleBtn = document.getElementById("toggleBtn");
+const toggleCircle = document.getElementById("toggleCircle");
 
 function handleApiError(response) {
     // specific error code handling
@@ -23,6 +25,10 @@ function handleApiError(response) {
     }
 }
 
+let currentTempC = null;
+let isCelsius = true;
+
+
 // Function to check today weather 
 async function checkWeather(url) {
     try {
@@ -37,9 +43,10 @@ async function checkWeather(url) {
         const options = { weekday: "long", day: "numeric", month: "short", year: "numeric" };
         const formattedDate = today.toLocaleDateString("en-US", options);
         const description = data.weather[0].description;
+        currentTempC = data.main.temp;
 
         document.querySelector(".city").innerHTML = data.name;
-        document.querySelector("#temp").innerHTML = Math.round(data.main.temp) + "°c";
+        document.querySelector("#temp").textContent = `${Math.round(currentTempC)}°C`;
         document.querySelector(".description").innerHTML = description.charAt(0).toUpperCase() + description.slice(1);
         document.querySelector(".date").innerHTML = formattedDate;
         document.querySelector(".humidity").innerHTML = data.main.humidity + "%";
@@ -110,7 +117,7 @@ async function getForecast(url) {
             const formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
 
             const card = `
-      <div class="bg-gradient-to-b from-blue-200 to-blue-400 text-white rounded-2xl p-4 shadow-lg transform transition hover:scale-105 backdrop-blur-md border border-white/20">
+      <div class="bg-gradient-to-b from-blue-200 to-blue-400 text-white rounded-3xl p-4 shadow-lg transform transition hover:scale-105 backdrop-blur-md border border-white/20">
         <h3 class="text-lg font-semibold mb-1">${dayName}</h3>
         <p class="text-sm mb-2 opacity-90">${formattedDate}</p>
         <img class="mx-auto" src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}">
@@ -199,20 +206,45 @@ window.addEventListener("load", function () {
     fetchData("Chennai");
 });
 
+toggleBtn.addEventListener("click", () => {
+    if (currentTempC === null) {
+        showToast("No temperature data available yet!", "warning");
+        return;
+    }
+
+    if (isCelsius) {
+        // Convert to Fahrenheit
+        const fahrenheit = (currentTempC * 9) / 5 + 32;
+        document.querySelector("#temp").textContent = `${Math.round(fahrenheit)}°F`;
+        toggleCircle.style.transform = "translateX(32px)";
+        isCelsius = false;
+        showToast("Switched to Fahrenheit (°F)", "info");
+    } else {
+        // Convert back to Celsius
+        document.querySelector("#temp").textContent = `${Math.round(currentTempC)}\u00B0C`;
+        toggleCircle.style.transform = "translateX(0)";
+        isCelsius = true;
+        showToast("Switched to Celsius (°C)", "info");
+    }
+});
+
+
+
+
 searchBtn.addEventListener("click", () => {
-const city = searchBox.value.trim();
-  if (!city) return showToast("City name cannot be empty", "warning");
-  checkWeatherForCity(city);         
-  getForecastForCity(city);          
+    const city = searchBox.value.trim();
+    if (!city) return showToast("City name cannot be empty", "warning");
+    checkWeatherForCity(city);
+    getForecastForCity(city);
 });
 
 searchBox.addEventListener("keypress", e => {
     if (e.key === "Enter") {
-     const city = searchBox.value.trim();
-    if (!city) return showToast("City name cannot be empty", "warning");
-    checkWeatherForCity(city);
-    getForecastForCity(city);
-  }
+        const city = searchBox.value.trim();
+        if (!city) return showToast("City name cannot be empty", "warning");
+        checkWeatherForCity(city);
+        getForecastForCity(city);
+    }
 });
 
 // currentLocationBtn.addEventListener("click", () => {
@@ -263,6 +295,6 @@ currentLocationBtn.addEventListener("click", () => {
 });
 
 function fetchData(city) {
-    checkWeatherForCity(city) 
+    checkWeatherForCity(city)
     getForecastForCity(city);
 }
