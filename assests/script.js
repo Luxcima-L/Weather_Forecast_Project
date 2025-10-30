@@ -15,6 +15,8 @@ const MAX_RECENT = 8;
 const searchInput = document.getElementById("cityInput");
 const searchBtn = document.getElementById("searchBtn");
 const recentMenu = document.getElementById("recentMenu");
+  
+ 
 
 // Local storage  
 function getRecentCities() {
@@ -86,23 +88,46 @@ function handleApiError(response) {
     }
 }
 
+const rainOverlay = document.getElementById('rainOverlay');
+ 
+// changing weather bg during rain
+  function setRain(isRaining) {
+    if (isRaining) {
+      rainOverlay.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        rainOverlay.classList.remove('opacity-0');
+      });
+    } else {
+      rainOverlay.classList.add('opacity-80');
+      rainOverlay.addEventListener('transitionend', function handle() {
+        rainOverlay.classList.add('hidden');
+        rainOverlay.removeEventListener('transitionend', handle);
+      }, { once: true });
+    }
+  }
+
+  // check if rain should appear based on 'main' or 'description'
+function isRainy(data) {
+  const main = data?.weather?.[0]?.main?.toLowerCase() || "";
+  const desc = data?.weather?.[0]?.description?.toLowerCase() || "";
+  return (
+    main.includes("Rain") ||
+    main.includes("drizzle") ||
+    main.includes("thunderstorm") ||
+    desc.includes("rain") ||
+    desc.includes("light rain") ||
+    desc.includes("moderate rain") 
+    // desc.includes("mist")
+  );
+
+}
+
+
 let currentTempC = null;
 let isCelsius = true;
 
 
 // Function to check today weather 
-
-/*
-TODO - timezone correction
-
-response data has 'dt'(sec) adjusted accroding to 'timezone'(sec)
-
-do 
-hint : timeInIST = dt - timezone + 19800
-calculate 'currentBrowserTime' -> get current browser time zone -> get offset of timezone -> convert to sec -> replace 19800 in prev formula
-*/
-
-
 async function checkWeather(url) {
     try {
         const response = await fetch(url);
@@ -112,6 +137,10 @@ async function checkWeather(url) {
         }
         const data = await response.json();
 
+        setRain(isRainy(data));
+
+
+       
         // timezone logic
         const cityOffsetSec = data.timezone; // in seconds
         const browserOffsetSec = -new Date().getTimezoneOffset() * 60; // convert browser offset (min) → sec
@@ -234,7 +263,7 @@ async function getForecast(url) {
             //   : "";
 
             const card = `
-      <div class="bg-gradient-to-b from-sky-400 to-blue-400 text-white rounded-3xl p-4 shadow-lg transform transition hover:scale-105 backdrop-blur-md border border-white/20">
+      <div class="bg-gradient-to-b from-sky-400 to-blue-400 text-white rounded-3xl p-4 shadow-lg transform transition hover:scale-105 backdrop-blur-md border border-white/20 m-2.5 w-">
         <h3 class="text-lg font-semibold mb-1">${dayName}</h3>
         <p class="text-sm mb-2 opacity-90">${formattedDate}</p>
         <img class="mx-auto" src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}">

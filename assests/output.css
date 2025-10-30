@@ -711,6 +711,18 @@ video {
   z-index: 50;
 }
 
+.z-10 {
+  z-index: 10;
+}
+
+.z-\[9999\] {
+  z-index: 9999;
+}
+
+.z-\[2147483647\] {
+  z-index: 2147483647;
+}
+
 .float-start {
   float: inline-start;
 }
@@ -761,6 +773,10 @@ video {
 
 .m-5 {
   margin: 1.25rem;
+}
+
+.m-2\.5 {
+  margin: 0.625rem;
 }
 
 .mx-auto {
@@ -907,6 +923,14 @@ video {
   max-height: 50vh;
 }
 
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.min-h-\[100dvh\] {
+  min-height: 100dvh;
+}
+
 .w-16 {
   width: 4rem;
 }
@@ -941,6 +965,46 @@ video {
 
 .w-full {
   width: 100%;
+}
+
+.w-5 {
+  width: 1.25rem;
+}
+
+.w-\[95\%\] {
+  width: 95%;
+}
+
+.w-\[5\%\] {
+  width: 5%;
+}
+
+.w-\[85\%\] {
+  width: 85%;
+}
+
+.w-\[75\%\] {
+  width: 75%;
+}
+
+.w-\[70\%\] {
+  width: 70%;
+}
+
+.w-\[0\%\] {
+  width: 0%;
+}
+
+.w-\[50\%\] {
+  width: 50%;
+}
+
+.w-60 {
+  width: 15rem;
+}
+
+.min-w-0 {
+  min-width: 0px;
 }
 
 .max-w-none {
@@ -1993,6 +2057,15 @@ video {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
 
+.bg-slate-800 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(30 41 59 / var(--tw-bg-opacity, 1));
+}
+
+.bg-black\/30 {
+  background-color: rgb(0 0 0 / 0.3);
+}
+
 .bg-opacity-45 {
   --tw-bg-opacity: 0.45;
 }
@@ -2003,6 +2076,138 @@ video {
 
 .bg-gradient-to-b {
   background-image: linear-gradient(to bottom, var(--tw-gradient-stops));
+}
+
+.bg-\[url\(\'images\/rainy-background\.jpg\'\)\] {
+  background-image: url('images/rainy-background.jpg');
+}
+
+.bg-\[url\(\'\.jpg\'\)\] {
+  background-image: url('.jpg');
+}
+
+.bg-\[url\(\'Ima\.jpg\'\)\] {
+  background-image: url('Ima.jpg');
+}
+
+.bg-\[url\(\'Im\.jpg\'\)\] {
+  background-image: url('Im.jpg');
+}
+
+.bg-\[url\(\'\/I\.jpg\'\)\] {
+  background-image: url('/I.jpg');
+}
+
+.bg-\[url\(\'\/Ima\.jpg\'\)\] {
+  background-image: url('/Ima.jpg');
+}
+
+.bg-\[url\(\'Images\.jpg\'\)\] {
+  background-image: url('Images.jpg');
+}
+
+.bg-\[url\(\'Images\/\.jpg\'\)\] {
+  background-image: url('Images/.jpg');
+}
+
+.bg-\[url\(\'Images\/ra\.jpg\'\)\] {
+  background-image: url('Images/ra.jpg');
+}
+
+.bg-\[url\(\'Images\/rainb\.jpg\'\)\] {
+  background-image: url('Images/rainb.jpg');
+}
+
+.bg-\[url\(\'Images\/rainbg\.jpg\'\)\] {
+  background-image: url('Images/rainbg.jpg');
+}
+
+.bg-\[url\(\'images\/rainbg\.jpg\'\)\] {
+  background-image: url('images/rainbg.jpg');
+}
+
+.bg-\[url\(\'\'\)\] {
+  background-image: url('');
+}
+
+.bg-\[url\(\'Ima\'\)\] {
+  background-image: url('Ima');
+}
+
+.bg-\[url\(\'https\:\/\/www\.freepik\.com\/free-vector\/realistic-clouds-with-falling-rain_18309129\.htm\#fromView\=search\&page\=1\&position\=7\&uuid\=6d369365-e36e-4f80-b07f-fd54a90a917c\&query\=weather\+forecast\+\+rain\+background\'\)\] {
+  background-image: url('https://www.freepik.com/free-vector/realistic-clouds-with-falling-rain_18309129.htm#fromView=search&page=1&position=7&uuid=6d369365-e36e-4f80-b07f-fd54a90a917c&query=weather+forecast++rain+background');
+}
+
+.bg-\[url\(\'Images\'\)\] {
+  background-image: url('Images');
+}
+
+.bg-\[url\(\'Images\/\'\)\] {
+  background-image: url('Images/');
+}
+
+.bg-\[url\(\'Images\/rainbg\.\'\)\] {
+  background-image: url('Images/rainbg.');
+}
+
+.bg-\[url\(Images\/rainbg\.jpg\)\] {
+  background-image: url(Images/rainbg.jpg);
+}
+
+.bg-\[url\(\)\] {
+  background-image: url();
+}
+
+.bg-\[url\(Ima\)\] {
+  background-image: url(Ima);
+}
+
+.bg-\[url\(Images\)\] {
+  background-image: url(Images);
+}
+
+.bg-\[url\(Images\/\)\] {
+  background-image: url(Images/);
+}
+
+.bg-\[url\(Images\/rain\)\] {
+  background-image: url(Images/rain);
+}
+
+.bg-\[url\(Images\/rainbg\)\] {
+  background-image: url(Images/rainbg);
+}
+
+.bg-\[url\(Images\/rainbg\.\)\] {
+  background-image: url(Images/rainbg.);
+}
+
+.bg-\[url\(\/ima\)\] {
+  background-image: url(/ima);
+}
+
+.bg-\[url\(\/images\)\] {
+  background-image: url(/images);
+}
+
+.bg-\[url\(\/images\/\)\] {
+  background-image: url(/images/);
+}
+
+.bg-\[url\(\/images\/rainbg\.jpg\)\] {
+  background-image: url(/images/rainbg.jpg);
+}
+
+.bg-\[url\(\/images\/rainbluebg\.jpg\)\] {
+  background-image: url(/images/rainbluebg.jpg);
+}
+
+.bg-\[url\(\/images\/rainblue\.jpg\)\] {
+  background-image: url(/images/rainblue.jpg);
+}
+
+.bg-\[url\(\/images\/raindrop\.jpg\)\] {
+  background-image: url(/images/raindrop.jpg);
 }
 
 .from-sky-400 {
@@ -2035,6 +2240,10 @@ video {
           box-decoration-break: clone;
 }
 
+.bg-cover {
+  background-size: cover;
+}
+
 .bg-fixed {
   background-attachment: fixed;
 }
@@ -2062,6 +2271,10 @@ video {
 .bg-clip-text {
   -webkit-background-clip: text;
           background-clip: text;
+}
+
+.bg-center {
+  background-position: center;
 }
 
 .bg-repeat {
@@ -2428,6 +2641,21 @@ video {
   color: rgb(234 179 8 / var(--tw-text-opacity, 1));
 }
 
+.text-gray-600 {
+  --tw-text-opacity: 1;
+  color: rgb(75 85 99 / var(--tw-text-opacity, 1));
+}
+
+.text-gray-500 {
+  --tw-text-opacity: 1;
+  color: rgb(107 114 128 / var(--tw-text-opacity, 1));
+}
+
+.text-gray-50 {
+  --tw-text-opacity: 1;
+  color: rgb(249 250 251 / var(--tw-text-opacity, 1));
+}
+
 .underline {
   text-decoration-line: underline;
 }
@@ -2484,6 +2712,10 @@ video {
 
 .opacity-90 {
   opacity: 0.9;
+}
+
+.opacity-80 {
+  opacity: 0.8;
 }
 
 .bg-blend-normal {
@@ -2790,12 +3022,28 @@ video {
   transition-duration: 150ms;
 }
 
+.transition-\[background-image\] {
+  transition-property: background-image;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.transition-opacity {
+  transition-property: opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
 .duration-300 {
   transition-duration: 300ms;
 }
 
 .duration-500 {
   transition-duration: 500ms;
+}
+
+.duration-700 {
+  transition-duration: 700ms;
 }
 
 .ease-in {
@@ -2858,6 +3106,14 @@ video {
 
 .forced-color-adjust-none {
   forced-color-adjust: none;
+}
+
+.\[grid-template-columns\:repeat\(auto-fit\2c minmax\(160px\2c 1fr\)\)\] {
+  grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+}
+
+.\[grid-template-columns\:repeat\(auto-fit\2c minmax\(180px\2c 1fr\)\)\] {
+  grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
 }
 
 @media (min-width: 640px) {
@@ -2949,13 +3205,71 @@ video {
   text-align: center;
 }
 
+@media not all and (min-width: 768px) {
+  .max-md\:w-full {
+    width: 100%;
+  }
+
+  .max-md\:grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media not all and (min-width: 640px) {
   .max-sm\:w-80 {
     width: 20rem;
   }
+
+  .max-sm\:w-\[60\%\] {
+    width: 60%;
+  }
+
+  .max-sm\:w-\[70\%\] {
+    width: 70%;
+  }
+
+  .max-sm\:w-\[80\%\] {
+    width: 80%;
+  }
 }
 
 @media (min-width: 640px) {
+  .sm\:w-\[90\%\] {
+    width: 90%;
+  }
+
+  .sm\:w-\[0\%\] {
+    width: 0%;
+  }
+
+  .sm\:w-\[80\%\] {
+    width: 80%;
+  }
+
+  .sm\:w-\[70\%\] {
+    width: 70%;
+  }
+
+  .sm\:w-\[75\%\] {
+    width: 75%;
+  }
+
+  .sm\:w-\[5\%\] {
+    width: 5%;
+  }
+
+  .sm\:w-\[65\%\] {
+    width: 65%;
+  }
+
+  .sm\:w-\[60\%\] {
+    width: 60%;
+  }
+
+  .sm\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .sm\:p-6 {
     padding: 1.5rem;
   }
@@ -2966,6 +3280,18 @@ video {
 }
 
 @media (min-width: 768px) {
+  .md\:h-1\/2 {
+    height: 50%;
+  }
+
+  .md\:h-1 {
+    height: 0.25rem;
+  }
+
+  .md\:h-1\/5 {
+    height: 20%;
+  }
+
   .md\:w-72 {
     width: 18rem;
   }
@@ -2974,14 +3300,143 @@ video {
     width: 24rem;
   }
 
+  .md\:w-5 {
+    width: 1.25rem;
+  }
+
+  .md\:w-56 {
+    width: 14rem;
+  }
+
+  .md\:w-\[56\] {
+    width: 56;
+  }
+
+  .md\:w-\[-56\] {
+    width: -56;
+  }
+
+  .md\:w-\[-56px\] {
+    width: -56px;
+  }
+
+  .md\:w-\[px\] {
+    width: px;
+  }
+
+  .md\:w-\[100px\] {
+    width: 100px;
+  }
+
+  .md\:w-\[500px\] {
+    width: 500px;
+  }
+
+  .md\:w-full {
+    width: 100%;
+  }
+
+  .md\:w-fit {
+    width: -moz-fit-content;
+    width: fit-content;
+  }
+
+  .md\:w-1\/2 {
+    width: 50%;
+  }
+
+  .md\:w-1\/5 {
+    width: 20%;
+  }
+
+  .md\:w-1 {
+    width: 0.25rem;
+  }
+
+  .md\:w-2 {
+    width: 0.5rem;
+  }
+
+  .md\:w-2\/3 {
+    width: 66.666667%;
+  }
+
+  .md\:w-\[80\%\] {
+    width: 80%;
+  }
+
+  .md\:w-\[8\%\] {
+    width: 8%;
+  }
+
+  .md\:w-\[85\%\] {
+    width: 85%;
+  }
+
+  .md\:w-\[75\%\] {
+    width: 75%;
+  }
+
+  .md\:w-\[\%\] {
+    width: %;
+  }
+
+  .md\:w-\[90\%\] {
+    width: 90%;
+  }
+
+  .md\:min-w-0 {
+    min-width: 0px;
+  }
+
+  .md\:max-w-7 {
+    max-width: 1.75rem;
+  }
+
+  .md\:max-w-72 {
+    max-width: 18rem;
+  }
+
   .md\:grid-cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .md\:justify-center {
+    justify-content: center;
+  }
+
+  .md\:self-center {
+    align-self: center;
+  }
+
+  .md\:\[grid-template-columns\:repeat\(3\2c minmax\(0\2c 1fr\)\)\] {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+}
+
+@media not all and (min-width: 768px) {
+  @media (min-width: 768px) {
+    .max-md\:md\:min-w-0 {
+      min-width: 0px;
+    }
   }
 }
 
 @media (min-width: 1024px) {
+  .lg\:w-\[50\%\] {
+    width: 50%;
+  }
+
   .lg\:grid-cols-5 {
     grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+
+  .lg\:\[grid-template-columns\:repeat\(5\2c minmax\(0\2c 1fr\)\)\] {
+    grid-template-columns: repeat(5,minmax(0,1fr));
   }
 }
 
