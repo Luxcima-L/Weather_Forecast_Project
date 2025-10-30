@@ -13,8 +13,8 @@
 
 <body background="/Images/background.jpg">
     <!-- Toast Container -->
-    <div id="toast" class="hidden fixed top-5 right-16 md:right-5 z-50 px-10 py-6 rounded-xl shadow-lg
-            bg-white text-blue-500 text-sm font-medium 
+    <div id="toast" class="hidden fixed top-5 right-16 right-5 z-50 px-10 py-6 rounded-xl shadow-lg
+            bg-white bg-opacity-50 text-blue-800 text-sm font-medium 
             flex items-center gap-2 transition-all duration-300">
         <span id="toast-icon"></span>
         <span id="toast-message">This is a toast message</span>
@@ -24,63 +24,70 @@
         <!-- header section -->
         <div class="max-w-xl mx-auto p-4 sm:p-6">
             <header class="mb-6 flex flex-col items-center">
-                <h1 class="text-3xl font-bold tracking-tight">Weather</h1>
+                <h1 class="text-3xl font-bold tracking-tight">Weather Forecast</h1>
                 <p class="text-black/80">Search by city or use your current location.</p>
             </header>
         </div>
 
         <!-- input box, search btn, geo btn -->
-        <div id="searchWrap" class=" flex relative w-full md:w-96 mx-auto search justify-center  border-2 rounded-full border-cyan-600">
-            <input id="cityInput" type="text" placeholder="Search city like Chennai" spellcheck="false" autocomplete="off"
-                class=" text-black font-sans placeholder:text-gray-400 outline-none rounded-full w-64 md:w-72 pl-5">
-                 <!-- Recent menu (hidden until we have history) -->
-        <div id="recentMenu" class="absolute left-0 right-0 mt-16 bg-white text-gray-700 rounded-xl shadow-lg border border-gray-200 hidden z-50">
-            <!-- populated by JS -->
-        </div>
-            <button id="searchBtn"><img src="Images/search_icon.png" class="w-10 h-10" </button>
-                <button id="geoBtn" class="px-4 py-3 w-14 h-14" alt="current location"><img
-                        src="Images/current_location.png">
+        <div id="searchWrap" class=" flex relative w-full md:w-96 mx-auto search justify-center rounded-full">
+            <div class="flex items-center bg-white rounded-full shadow-md px-2 py-2 gap-2">
+                <input id="cityInput" type="text" placeholder="Search city like Chennai" spellcheck="false"
+                    autocomplete="off"
+                    class=" text-black font-normal placeholder:text-gray-400 outline-none rounded-full w-64 md:w-72 pl-5">
+                <!-- Recent menu (hidden until we have history) -->
+                <div id="recentMenu"
+                    class="absolute left-0 right-0  overflow-y-auto top-full mt-2  max-h-[50vh]  bg-white text-gray-700 rounded-xl shadow-lg border border-gray-200 hidden z-50">
+                    <!-- Implement by JS -->
+                </div>
+                <button id="searchBtn"><i
+                        class=" text-2xl text-gray-300 hover:text-blue-300 fa-solid fa-magnifying-glass"></i></button>
+                <button id="geoBtn" class="px-4 py-3 text-gray-300 hover:text-blue-300"><i
+                        class=" text-2xl fa-solid fa-location-crosshairs"></i>
                 </button>
+            </div>
         </div>
 
         <!-- today weather -->
-    <div class="flex flex-col m-5 items-center bg-blue-300 rounded-md w-96 pt-10">
-        <p class="date text-sm text-gray-700 mb-2">--</p>
-        <img src="https://openweathermap.org/img/wn/04n@2x.png" id="weather_icon">
-        <h1 class="text-5xl" id="temp">22</h1>
-        <!-- Toggle Button -->
-        <div id="toggleBtn"
-            class="relative m-2 w-16 h-8 bg-blue-500/40 border border-white rounded-full cursor-pointer transition">
-            <div id="toggleCircle"
-                class="absolute top-[2px] left-[2px] w-7 h-7 bg-white rounded-full  transition-transform duration-300">
+        <div
+            class="flex flex-col m-5 items-center bg-sky-400 bg-opacity-45 transition-all duration-500 rounded-3xl max-sm:w-80 w-96 pt-10">
+            <p class="date text-sm text-gray-700 mb-2">--</p>
+            <img src="https://openweathermap.org/img/wn/04n@2x.png" id="weather_icon">
+            <h1 class="text-5xl font-normal text-white opacity-90" id="temp">22</h1>
+            <!-- Toggle Button -->
+            <div id="toggleBtn"
+                class="relative m-2 w-16 h-8 bg-blue-500/40 border border-white rounded-full cursor-pointer transition">
+                <div id="toggleCircle"
+                    class="absolute top-[2px] left-[2px] w-7 h-7 bg-white rounded-full  transition-transform duration-300">
+                </div>
+                <div
+                    class="absolute inset-0 flex justify-between text-[17px] px-2 font-semibold text-white select-none">
+                    <span>°C</span>
+                    <span>°F</span>
+                </div>
             </div>
-            <div class="absolute inset-0 flex justify-between text-[17px] px-2 font-semibold text-white select-none">
-                <span>°C</span>
-                <span>°F</span>
+
+            <h2 class="city font-semibold">New York</h2>
+            <p class="description font-normal text-sm text-gray-700 mb-3">Description</p>
+            <div class="flex m-5">
+                <div class="details w-40 flex flex-col items-center">
+                    <i class="fa-2x fa-solid fa-droplet text-white"></i>
+                    <p class="humidity text-xl mt-2 font-semibold">50%</p>
+                    <p class="text-xs">Humidity</p>
+                </div>
+                <div class="details w-40 flex flex-col items-center">
+                    <i class="fa-2x fa-solid fa-wind text-white"></i>
+                    <p class="wind text-xl mt-2 font-semibold">15 m/s</p>
+                    <p class="text-xs">Wind Speed</p>
+                </div>
             </div>
         </div>
 
-        <h2 class="city">New York</h2>
-        <p class="description text-sm text-gray-700 mb-3">Description</p>
-        <div class="flex m-5">
-            <div class="details w-40 flex flex-col items-center">
-                <i class="fa-2x fa-solid fa-droplet text-white"></i>
-                <p class="humidity text-xl mt-2">50%</p>
-                <p class="text-xs">Humidity</p>
-            </div>
-            <div class="details w-40 flex flex-col items-center">
-                <i class="fa-2x fa-solid fa-wind text-white"></i>
-                <p class="wind text-xl mt-2">15 m/s</p>
-                <p class="text-xs">Wind Speed</p>
-            </div>
+        <!-- 5 Day Forecast -->
+        <h2 class="text-center text-2xl font-semibold text-black mt-8 mb-4">5 Days Forecast</h2>
+        <div id="forecast" class="grid gap-4  grid-cols-1 max-sm:w-80 max-w-none md:grid-cols-3 lg:grid-cols-5">
+            <!-- <p class="weather" id="day1"></p> -->
         </div>
-    </div>
-
-    <!-- 5 Day Forecast -->
-    <h2 class="text-center text-2xl font-semibold text-black mt-8 mb-4">5 Days Forecast</h2>
-    <div id="forecast" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 px-4">
-        <!-- <p class="weather" id="day1"></p> -->
-    </div>
 
     </div>
 

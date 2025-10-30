@@ -16,7 +16,7 @@ const searchInput = document.getElementById("cityInput");
 const searchBtn = document.getElementById("searchBtn");
 const recentMenu = document.getElementById("recentMenu");
 
-// Storage helpers 
+// Local storage  
 function getRecentCities() {
     try {
         return JSON.parse(localStorage.getItem(RECENT_KEY)) || [];
@@ -41,9 +41,9 @@ function renderRecentDropdown(filter = "") {
     const menu = document.getElementById("recentMenu");
     let cities = getRecentCities();
 
-    // Filter by input text 
+    // Filter by input text
     const f = filter.trim().toLowerCase();
-    if (f) cities = cities.filter(c => c.toLowerCase().includes(f));
+    if (f && f.length != 0) cities = cities.filter(c => c.toLowerCase().includes(f));
 
     if (!cities.length) {
         menu.classList.add("hidden");
@@ -69,12 +69,12 @@ function renderRecentDropdown(filter = "") {
     // menu.classList.add("show");
 }
 
-
+// API errors
 function handleApiError(response) {
     // specific error code handling
     // 404 is returned for unknown city name input
     if (response.status == 404) {
-        showToast('City not found. Enter valid city', 'error');
+        showToast('city not found. Enter valid name', 'error');
         return;
     }
 
@@ -91,6 +91,18 @@ let isCelsius = true;
 
 
 // Function to check today weather 
+
+/*
+TODO - timezone correction
+
+response data has 'dt'(sec) adjusted accroding to 'timezone'(sec)
+
+do 
+hint : timeInIST = dt - timezone + 19800
+calculate 'currentBrowserTime' -> get current browser time zone -> get offset of timezone -> convert to sec -> replace 19800 in prev formula
+*/
+
+
 async function checkWeather(url) {
     try {
         const response = await fetch(url);
@@ -100,11 +112,26 @@ async function checkWeather(url) {
         }
         const data = await response.json();
 
-        const today = new Date();
+        // timezone logic
+        const cityOffsetSec = data.timezone; // in seconds
+        const browserOffsetSec = -new Date().getTimezoneOffset() * 60; // convert browser offset (min) → sec
+        const utcTime = data.dt; // UTC timestamp from API
+        const cityLocalTime = utcTime + cityOffsetSec - browserOffsetSec;
+
+        const today = new Date(cityLocalTime * 1000);
         const options = { weekday: "long", day: "numeric", month: "short", year: "numeric" };
         const formattedDate = today.toLocaleDateString("en-US", options);
         const description = data.weather[0].description;
+        document.querySelector(".description").innerHTML =
         currentTempC = data.main.temp;
+
+        // weather alert
+        if (currentTempC > 40) {
+            showToast(`Heat Alert in ${data.name}: ${Math.round(currentTempC)}°C`, "warning");
+
+        } else if (currentTempC < 10) {
+            showToast(` Cold Alert in ${data.name}: ${Math.round(currentTempC)}°C`, "warning");
+        }
 
         document.querySelector(".city").innerHTML = data.name;
         document.querySelector("#temp").textContent = `${Math.round(currentTempC)}°C`;
@@ -127,7 +154,17 @@ async function checkWeather(url) {
     return true;
 }
 
+
 // Function to show 5 day forecast
+/*
+TODO - timezone correction
+
+response data has 'dt'(sec) already in UTC (00:00)
+
+do 
+hint : timeInIST = dt + 19800
+calculate 'currentBrowserTime' -> get current browser time zone -> get offset of timezone -> convert to sec -> replace 19800 in prev formula
+*/
 async function getForecast(url) {
 
     try {
@@ -141,52 +178,71 @@ async function getForecast(url) {
         const forecastContainer = document.querySelector("#forecast");
         forecastContainer.innerHTML = "";
 
+        const cityOffsetSec = data.city.timezone; // seconds from UTC  ➜ OpenWeather gives this
+        const browserOffsetSec = -new Date().getTimezoneOffset() * 60; // current browser offset (minutes → sec)
+
+
+        const toCityDate = (utcSec) => new Date((utcSec + cityOffsetSec - browserOffsetSec) * 1000);
+
+        const dateKey = (d) => {
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, "0");
+            const da = String(d.getDate()).padStart(2, "0");
+            return `${y}-${m}-${da}`;
+        };
+
+        const utcNow = Math.floor(Date.now() / 1000);
+        const cityNow = new Date((utcNow + cityOffsetSec - browserOffsetSec) * 1000);
+        const todayKey = dateKey(cityNow);
+
+
         // Group forecast by date
         const grouped = {};
-        data.list.forEach(item => {
-            const date = item.dt_txt.split(" ")[0];
-            if (!grouped[date]) grouped[date] = [];
-            grouped[date].push(item);
+        data.list.forEach((item) => {
+            const local = toCityDate(item.dt);
+            const key = dateKey(local);
+            (grouped[key] ??= []).push({ ...item, _localDate: local });
         });
 
-        // Get one forecast entry per day (12:00:00)
-        // const dailyForecast = data.list.filter(item => item.dt_txt.includes("12:00:00"));
+        const orderedKeys = Object.keys(grouped).sort();
+        const nextKeys = orderedKeys.filter((k) => k > todayKey).slice(0, 5);
 
-        // Extract one entry per day (closest to 12:00)
-        const daily = Object.keys(grouped).map(date => {
-            const items = grouped[date];
-            return items.reduce((prev, curr) => {
-                const prevDiff = Math.abs(new Date(prev.dt_txt).getHours() - 12);
-                const currDiff = Math.abs(new Date(curr.dt_txt).getHours() - 12);
+        const nextFive = nextKeys.map((k) => {
+            const arr = grouped[k];
+            return arr.reduce((prev, curr) => {
+                const prevDiff = Math.abs(prev._localDate.getHours() - 12);
+                const currDiff = Math.abs(curr._localDate.getHours() - 12);
                 return currDiff < prevDiff ? curr : prev;
             });
         });
 
-        // Remove today's entry and show next 5
-        daily.shift();
-        const nextFive = daily.slice(0, 5);
-
         nextFive.forEach(day => {
-            const date = new Date(day.dt_txt);
-            const dayName = date.toLocaleDateString("en-US", { weekday: "short" });
+            const d = day._localDate;
+            const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
+            const formattedDate = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
             const icon = day.weather[0].icon;
             const temp = Math.round(day.main.temp);
             const desc = day.weather[0].description;
             const humidity = day.main.humidity;
             const wind = day.wind.speed;
 
-            const formattedDate = date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
+            //     const tempClass =
+            // temp > 30
+            //   ? "ring-2 ring-red-400 bg-red-500/10"
+            //   : temp < 15
+            //   ? "ring-2 ring-blue-400 bg-blue-500/10"
+            //   : "";
 
             const card = `
-      <div class="bg-gradient-to-b from-blue-200 to-blue-400 text-white rounded-3xl p-4 shadow-lg transform transition hover:scale-105 backdrop-blur-md border border-white/20">
+      <div class="bg-gradient-to-b from-sky-400 to-blue-400 text-white rounded-3xl p-4 shadow-lg transform transition hover:scale-105 backdrop-blur-md border border-white/20">
         <h3 class="text-lg font-semibold mb-1">${dayName}</h3>
         <p class="text-sm mb-2 opacity-90">${formattedDate}</p>
         <img class="mx-auto" src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="${desc}">
         <p class="text-2xl font-bold">${temp}°C</p>
         <p class="text-sm capitalize mb-2">${desc}</p>
         <div class="flex justify-center gap-4 text-sm">
-          <p>💧 ${humidity}%</p>
-          <p>💨 ${wind} m/s</p>
+          <p> <i class="fa-2px fa-solid fa-droplet text-white"></i> ${humidity}%</p>
+          <p> <i class="fa-solid fa-wind text-white"></i> ${wind} m/s</p>
         </div>
       </div>
     `;
@@ -231,22 +287,23 @@ function showToast(message, type = "info") {
     const toastIcon = document.getElementById("toast-icon");
     const toastMessage = document.getElementById("toast-message");
 
+
     // Set message text
     toastMessage.textContent = message;
 
     // Set icon based on type
     switch (type) {
         case "success":
-            toastIcon.textContent = "✅";
+            toastIcon.innerHTML = `<i class=" text-2xl text-green-500 fa-solid fa-circle-check"></i>`;
             break;
         case "error":
-            toastIcon.textContent = "❌";
+            toastIcon.innerHTML = '<i class=" text-2xl text-red-500 fa-solid fa-circle-xmark"></i>';
             break;
         case "warning":
-            toastIcon.textContent = "⚠️";
+            toastIcon.innerHTML = `<i class=" text-2xl fa-solid fa-triangle-exclamation text-yellow-500"></i>`;
             break;
         default:
-            toastIcon.textContent = "ℹ️";
+            toastIcon.innerHTML = `<i class=" text-2xl fa-solid fa-circle-info text-blue-500"></i>`;
     }
 
     // Show toast
@@ -289,6 +346,7 @@ toggleBtn.addEventListener("click", () => {
     }
 });
 
+
 searchBtn.addEventListener("click", () => {
     const city = searchBox.value.trim();
     if (!city) return showToast("City name cannot be empty", "warning");
@@ -299,19 +357,22 @@ searchBtn.addEventListener("click", () => {
 
 });
 
-// Show dropdown only when typing
+// Show dropdown only when typing and on focus
 
 searchInput.addEventListener("input", () => {
     const value = searchInput.value.trim();
 
-    // If user types something → show dropdown (filtered)
     if (value.length > 0) {
         renderRecentDropdown(value);
     }
-    // If input is empty → hide dropdown
     else {
         recentMenu.classList.add("hidden");
     }
+});
+
+searchInput.addEventListener("focus", () => {
+    const value = searchInput.value.trim();
+    renderRecentDropdown(value);
 });
 
 // Click on a recent item (event delegation)
@@ -340,9 +401,8 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") recentMenu.classList.add("hidden");
 });
 
-// Initial state: no dropdown until we have history
+
 document.addEventListener("DOMContentLoaded", () => {
-    // do not render if empty (function will hide automatically)
     renderRecentDropdown();
 });
 
@@ -408,3 +468,5 @@ document.addEventListener("DOMContentLoaded", () => {
     recentMenu.classList.add("hidden");
     //   recentMenu.classList.add("show");
 });
+
+
