@@ -4,7 +4,6 @@ const apiUrlForecast = "https://api.openweathermap.org/data/2.5/forecast?units=m
 
 
 const searchBox = document.querySelector(".search input");
-// const searchBtn = document.querySelector(".search button");
 const currentLocationBtn = document.querySelector("#geoBtn");
 const toggleBtn = document.getElementById("toggleBtn");
 const toggleCircle = document.getElementById("toggleCircle");
@@ -68,7 +67,6 @@ function renderRecentDropdown(filter = "") {
      </div>`;
 
     menu.classList.remove("hidden");
-    // menu.classList.add("show");
 }
 
 // API errors
@@ -120,7 +118,6 @@ function isRainy(data) {
         desc.includes("rain") ||
         desc.includes("light rain") ||
         desc.includes("moderate rain")
-        // desc.includes("mist")
     );
 
 }
@@ -141,8 +138,6 @@ async function checkWeather(url) {
 
         setRain(isRainy(data));
 
-
-
         // timezone logic
         const cityOffsetSec = data.timezone; // in seconds
         const browserOffsetSec = -new Date().getTimezoneOffset() * 60; // convert browser offset (min) → sec
@@ -156,7 +151,7 @@ async function checkWeather(url) {
         document.querySelector(".description").innerHTML =
             currentTempC = data.main.temp;
 
-        // weather alert
+        // if weather alert is greater than 40 and lessthan 10 means it will throw an error
         if (currentTempC > 40) {
             showToast(`Heat Alert in ${data.name}: ${Math.round(currentTempC)}°C`, "warning");
 
@@ -188,12 +183,8 @@ async function checkWeather(url) {
 
 // Function to show 5 day forecast
 /*
-TODO - timezone correction
-
 response data has 'dt'(sec) already in UTC (00:00)
-
-do 
-hint : timeInIST = dt + 19800
+timeInIST = dt + 19800
 calculate 'currentBrowserTime' -> get current browser time zone -> get offset of timezone -> convert to sec -> replace 19800 in prev formula
 */
 async function getForecast(url) {
@@ -210,8 +201,8 @@ async function getForecast(url) {
         const forecastContainer = document.querySelector("#forecast");
         forecastContainer.innerHTML = "";
 
-        const cityOffsetSec = data.city.timezone; // seconds from UTC  ➜ OpenWeather gives this
-        const browserOffsetSec = -new Date().getTimezoneOffset() * 60; // current browser offset (minutes → sec)
+        const cityOffsetSec = data.city.timezone; // seconds from UTC  - OpenWeather gives this
+        const browserOffsetSec = -new Date().getTimezoneOffset() * 60; // current browser offset (minutes to sec)
 
 
         const toCityDate = (utcSec) => new Date((utcSec + cityOffsetSec - browserOffsetSec) * 1000);
@@ -239,6 +230,7 @@ async function getForecast(url) {
         const orderedKeys = Object.keys(grouped).sort();
         const nextKeys = orderedKeys.filter((k) => k > todayKey).slice(0, 5);
 
+        // if 5 days forecast card < 4 means it will throw the warning
         if (nextKeys.length < 5) {
             showToast(`Forecast is available only for ${nextKeys.length} days.`, 'warning');
 
@@ -431,7 +423,7 @@ document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") recentMenu.classList.add("hidden");
 });
 
-
+// page load
 document.addEventListener("DOMContentLoaded", () => {
     renderRecentDropdown();
 });
@@ -466,7 +458,7 @@ currentLocationBtn.addEventListener("click", () => {
             console.log("Location received:", lat, lon);
             showToast("Location detected successfully!", "success");
 
-            //  URL-based functions
+            //  URL - based functions
             checkWeatherForCoords(lat, lon);
             getForecastForCoords(lat, lon);
         },
@@ -496,7 +488,6 @@ function fetchData(city) {
 
 document.addEventListener("DOMContentLoaded", () => {
     recentMenu.classList.add("hidden");
-    //   recentMenu.classList.add("show");
 });
 
 
