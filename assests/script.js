@@ -203,6 +203,7 @@ async function getForecast(url) {
             return;
         }
         const data = await response.json();
+        console.log('forecast response', data);
 
         const forecastContainer = document.querySelector("#forecast");
         forecastContainer.innerHTML = "";
@@ -411,7 +412,6 @@ recentMenu.addEventListener("click", (e) => {
         const city = btn.dataset.city;
         searchInput.value = city;
         saveRecentCity(city);        // move to top
-        renderRecentDropdown();      // re-render
         checkWeatherForCity(city);
         getForecastForCity(city);
         return;
@@ -442,7 +442,7 @@ searchBox.addEventListener("keypress", e => {
         if (!city) return showToast("City name cannot be empty", "warning");
         checkWeatherForCity(city);
         getForecastForCity(city);
-
+        saveRecentCity(city);
     }
 });
 
