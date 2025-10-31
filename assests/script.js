@@ -15,8 +15,8 @@ const MAX_RECENT = 8;
 const searchInput = document.getElementById("cityInput");
 const searchBtn = document.getElementById("searchBtn");
 const recentMenu = document.getElementById("recentMenu");
-  
- 
+
+
 
 // Local storage  
 function getRecentCities() {
@@ -75,10 +75,13 @@ function renderRecentDropdown(filter = "") {
 function handleApiError(response) {
     // specific error code handling
     // 404 is returned for unknown city name input
+
+
     if (response.status == 404) {
         showToast('city not found. Enter valid name', 'error');
         return;
     }
+
 
     // Generic error toast for all other errors
     if (Math.floor(Number(response.status / 100)) === 4) {
@@ -89,39 +92,38 @@ function handleApiError(response) {
 }
 
 const rainOverlay = document.getElementById('rainOverlay');
- 
+
 // changing weather bg during rain
-  function setRain(isRaining) {
+function setRain(isRaining) {
     if (isRaining) {
-      rainOverlay.classList.remove('hidden');
-      requestAnimationFrame(() => {
-        rainOverlay.classList.remove('opacity-0');
-      });
+        rainOverlay.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            rainOverlay.classList.remove('opacity-0');
+        });
     } else {
-      rainOverlay.classList.add('opacity-80');
-      rainOverlay.addEventListener('transitionend', function handle() {
-        rainOverlay.classList.add('hidden');
-        rainOverlay.removeEventListener('transitionend', handle);
-      }, { once: true });
+        rainOverlay.classList.add('opacity-80');
+        rainOverlay.addEventListener('transitionend', function handle() {
+            rainOverlay.classList.add('hidden');
+            rainOverlay.removeEventListener('transitionend', handle);
+        }, { once: true });
     }
-  }
-
-  // check if rain should appear based on 'main' or 'description'
-function isRainy(data) {
-  const main = data?.weather?.[0]?.main?.toLowerCase() || "";
-  const desc = data?.weather?.[0]?.description?.toLowerCase() || "";
-  return (
-    main.includes("Rain") ||
-    main.includes("drizzle") ||
-    main.includes("thunderstorm") ||
-    desc.includes("rain") ||
-    desc.includes("light rain") ||
-    desc.includes("moderate rain") 
-    // desc.includes("mist")
-  );
-
 }
 
+// check if rain should appear based on 'main' or 'description'
+function isRainy(data) {
+    const main = data?.weather?.[0]?.main?.toLowerCase() || "";
+    const desc = data?.weather?.[0]?.description?.toLowerCase() || "";
+    return (
+        main.includes("Rain") ||
+        main.includes("drizzle") ||
+        main.includes("thunderstorm") ||
+        desc.includes("rain") ||
+        desc.includes("light rain") ||
+        desc.includes("moderate rain")
+        // desc.includes("mist")
+    );
+
+}
 
 let currentTempC = null;
 let isCelsius = true;
@@ -140,7 +142,7 @@ async function checkWeather(url) {
         setRain(isRainy(data));
 
 
-       
+
         // timezone logic
         const cityOffsetSec = data.timezone; // in seconds
         const browserOffsetSec = -new Date().getTimezoneOffset() * 60; // convert browser offset (min) → sec
@@ -152,7 +154,7 @@ async function checkWeather(url) {
         const formattedDate = today.toLocaleDateString("en-US", options);
         const description = data.weather[0].description;
         document.querySelector(".description").innerHTML =
-        currentTempC = data.main.temp;
+            currentTempC = data.main.temp;
 
         // weather alert
         if (currentTempC > 40) {
@@ -237,6 +239,11 @@ async function getForecast(url) {
         const orderedKeys = Object.keys(grouped).sort();
         const nextKeys = orderedKeys.filter((k) => k > todayKey).slice(0, 5);
 
+        if (nextKeys.length < 5) {
+            showToast(`Forecast is available only for ${nextKeys.length} days.`, 'warning');
+
+        }
+
         const nextFive = nextKeys.map((k) => {
             const arr = grouped[k];
             return arr.reduce((prev, curr) => {
@@ -247,6 +254,7 @@ async function getForecast(url) {
         });
 
         nextFive.forEach(day => {
+
             const d = day._localDate;
             const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
             const formattedDate = d.toLocaleDateString("en-US", { day: "numeric", month: "short" });
@@ -255,13 +263,6 @@ async function getForecast(url) {
             const desc = day.weather[0].description;
             const humidity = day.main.humidity;
             const wind = day.wind.speed;
-
-            //     const tempClass =
-            // temp > 30
-            //   ? "ring-2 ring-red-400 bg-red-500/10"
-            //   : temp < 15
-            //   ? "ring-2 ring-blue-400 bg-blue-500/10"
-            //   : "";
 
             const card = `
       <div class="bg-gradient-to-b from-sky-400 to-blue-400 text-white rounded-3xl p-4 shadow-lg transform transition hover:scale-105 backdrop-blur-md border border-white/20 m-2.5 w-">
